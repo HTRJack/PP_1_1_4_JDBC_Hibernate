@@ -3,26 +3,28 @@ package jm.task.core.jdbc;
 import jm.task.core.jdbc.dao.UserDao;
 import jm.task.core.jdbc.dao.UserDaoHibernateImpl;
 import jm.task.core.jdbc.model.User;
+import jm.task.core.jdbc.service.UserService;
+import jm.task.core.jdbc.service.UserServiceImpl;
 
 
 public class Main {
     public static void main(String[] args) {
-        UserDao userDao = new UserDaoHibernateImpl();
+        UserService userService = new UserServiceImpl();
 
-        userDao.createUsersTable();
-        userDao.cleanUsersTable();
+        userService.createUsersTable();
+        userService.cleanUsersTable();
 
-        userDao.saveUser("Биба", "Бобов", (byte) 25);
-        userDao.saveUser("Боба", "Бибов", (byte) 17);
-        userDao.saveUser("Вин", "Дроссель", (byte) 19);
-        userDao.saveUser("Адам", "Арабов", (byte) 61);
+        userService.saveUser("Биба", "Бобов", (byte) 25);
+        userService.saveUser("Боба", "Бибов", (byte) 17);
+        userService.saveUser("Вин", "Дроссель", (byte) 19);
+        userService.saveUser("Адам", "Арабов", (byte) 61);
 
 
-        for (User user : userDao.getAllUsers()) {
+        for (User user : userService.getAllUsers()) {
             System.out.println(user);
         }
 
-        userDao.cleanUsersTable();
-        userDao.dropUsersTable();
+        //userDao.cleanUsersTable();
+        userService.dropUsersTable();
     }
 }
