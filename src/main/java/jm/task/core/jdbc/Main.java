@@ -21,7 +21,7 @@ public class Main {
         for (User user : userDao.getAllUsers()) {
             System.out.println(user);
         }
-        userDao.removeUserById(3);
+
         userDao.cleanUsersTable();
         userDao.dropUsersTable();
     }
