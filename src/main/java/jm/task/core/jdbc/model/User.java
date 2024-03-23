@@ -1,12 +1,16 @@
 package jm.task.core.jdbc.model;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import org.hibernate.annotations.GenericGenerator;
 
-@Table
+import javax.persistence.*;
+
+@Entity(name = "USERS")
+@Table(name = "USERS")
 public class User {
     @Id
+    @GenericGenerator(name="kaugen" , strategy="increment")
+    @GeneratedValue(generator="kaugen")
+    @Column
     private Long id;
 
     @Column

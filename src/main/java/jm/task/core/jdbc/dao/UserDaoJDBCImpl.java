@@ -18,7 +18,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void createUsersTable() {
 
-        SQLQuerry = "CREATE TABLE IF NOT EXISTS `KATA`.`USERS` (\n" +
+        SQLQuerry = "CREATE TABLE IF NOT EXISTS USERS (\n" +
                 "`id` BIGINT NOT NULL AUTO_INCREMENT,\n" +
                 "`name` VARCHAR(45) NULL,\n" +
                 "`lastName` VARCHAR(45) NULL,\n" +
