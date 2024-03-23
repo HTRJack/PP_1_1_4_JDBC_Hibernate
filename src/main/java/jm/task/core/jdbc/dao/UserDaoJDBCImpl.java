@@ -9,7 +9,7 @@ import java.util.List;
 
 
 public class UserDaoJDBCImpl implements UserDao {
-    Statement statement;
+    //Statement statement;
     String SQLQuerry;
 
     public UserDaoJDBCImpl() {
@@ -18,12 +18,14 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void createUsersTable() {
 
-        SQLQuerry = "CREATE TABLE IF NOT EXISTS USERS (\n" +
-                "`id` BIGINT NOT NULL AUTO_INCREMENT,\n" +
-                "`name` VARCHAR(45) NULL,\n" +
-                "`lastName` VARCHAR(45) NULL,\n" +
-                "`age` TINYINT NULL,\n" +
-                "PRIMARY KEY (`id`));";
+        SQLQuerry = """
+                CREATE TABLE IF NOT EXISTS USERS (
+                `id` BIGINT NOT NULL AUTO_INCREMENT,
+                `name` VARCHAR(45) NULL,
+                `lastName` VARCHAR(45) NULL,
+                `age` TINYINT NULL,
+                PRIMARY KEY (`id`));
+                """;
 
         try (Statement statement = Util.getConnection().createStatement()) {
             statement.executeUpdate(SQLQuerry);
@@ -46,7 +48,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 "VALUES ('" + name + "','" + lastName + "'," + age + ");";
         try (Statement statement = Util.getConnection().createStatement()) {
             statement.executeUpdate(SQLQuerry);
-            System.out.printf("User с именем — %s добавлен в базу данных \n", name);
+            System.out.printf("User с именем — %s добавлен в базу данных%n", name);
         } catch (SQLException e) {
             System.out.println(e);
         }
