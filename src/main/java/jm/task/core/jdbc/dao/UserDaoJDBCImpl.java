@@ -6,11 +6,12 @@ import jm.task.core.jdbc.util.Util;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 
 public class UserDaoJDBCImpl implements UserDao {
-    //Statement statement;
-    String SQLQuerry;
+    Logger log = Logger.getLogger("UserDaoJDBCImpl");
+    String query;
 
     public UserDaoJDBCImpl() {
         // default constructor
@@ -18,7 +19,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void createUsersTable() {
 
-        SQLQuerry = """
+        query = """
                 CREATE TABLE IF NOT EXISTS USERS (
                 `id` BIGINT NOT NULL AUTO_INCREMENT,
                 `name` VARCHAR(45) NULL,
@@ -28,48 +29,56 @@ public class UserDaoJDBCImpl implements UserDao {
                 """;
 
         try (Statement statement = Util.getConnection().createStatement()) {
-            statement.executeUpdate(SQLQuerry);
+            statement.executeUpdate(query);
         } catch (SQLException e) {
-            System.out.println(e);
+            log.warning(e.getMessage());
         }
     }
 
     public void dropUsersTable() {
-        SQLQuerry = "DROP TABLE IF EXISTS KATA.USERS;";
+        query = "DROP TABLE IF EXISTS USERS;";
         try (Statement statement = Util.getConnection().createStatement()) {
-            statement.executeUpdate(SQLQuerry);
+            statement.executeUpdate(query);
         } catch (SQLException e) {
-            System.out.println(e);
+            log.warning(e.getMessage());
         }
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        SQLQuerry = "INSERT KATA.USERS (name, lastName, age)" +
-                "VALUES ('" + name + "','" + lastName + "'," + age + ");";
-        try (Statement statement = Util.getConnection().createStatement()) {
-            statement.executeUpdate(SQLQuerry);
-            System.out.printf("User с именем — %s добавлен в базу данных%n", name);
+        query = "INSERT USERS (name, lastName, age)" +
+                "VALUES (?,?,?);";
+        try (PreparedStatement preparedStatement = Util.getConnection()
+                .prepareStatement(query)) {
+
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, lastName);
+            preparedStatement.setByte(3, age);
+            preparedStatement.executeUpdate();
+
+            log.info(String.format("User с именем — %s добавлен в базу данных%n", name));
         } catch (SQLException e) {
-            System.out.println(e);
+            log.warning(e.getMessage());
         }
     }
 
     public void removeUserById(long id) {
-        SQLQuerry = "DELETE FROM KATA.USERS WHERE id = " + id + ";";
-        try (Statement statement = Util.getConnection().createStatement()) {
-            statement.executeUpdate(SQLQuerry);
+        query = "DELETE FROM USERS WHERE id = ?;";
+        try (PreparedStatement preparedStatement = Util.getConnection().prepareStatement(query)) {
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate(query);
         } catch (SQLException e) {
-            System.out.println(e);
+            log.warning(e.getMessage());
         }
     }
 
     public List<User> getAllUsers() {
-        SQLQuerry = "SELECT * FROM KATA.USERS;";
+        query = "SELECT * FROM USERS;";
 
         List<User> allUsers = new ArrayList<>();
 
-        try (Statement statement = Util.getConnection().createStatement()) {
-            ResultSet resultSet = statement.executeQuery(SQLQuerry);
+        try (Statement statement = Util.getConnection().createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+
             while (resultSet.next()) {
                 User user = new User(resultSet.getString(2),
                         resultSet.getString(3), resultSet.getByte(4));
@@ -77,17 +86,17 @@ public class UserDaoJDBCImpl implements UserDao {
                 allUsers.add(user);
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            log.warning(e.getMessage());
         }
         return allUsers;
     }
 
     public void cleanUsersTable() {
-        SQLQuerry = "DELETE FROM KATA.USERS where id!=0;";
+        query = "DELETE FROM USERS where id!=0;";
         try (Statement statement = Util.getConnection().createStatement()) {
-            statement.executeUpdate(SQLQuerry);
+            statement.executeUpdate(query);
         } catch (SQLException e) {
-            System.out.println(e);
+            log.warning(e.getMessage());
         }
     }
 }

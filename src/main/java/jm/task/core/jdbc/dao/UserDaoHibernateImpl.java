@@ -4,12 +4,17 @@ import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.Session;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class UserDaoHibernateImpl implements UserDao {
     public UserDaoHibernateImpl() {
         // default constructor
     }
+
+    Logger log = Logger.getLogger("UserDaoHibernateImpl");
 
 
     @Override
@@ -50,19 +55,36 @@ public class UserDaoHibernateImpl implements UserDao {
 
         session.getTransaction().commit();
         Util.closeSessionFactory();
-        System.out.printf("User с именем — %s добавлен в базу данных %n", name);
-
+        log.info(String.format("User с именем — %s добавлен в базу данных %n", name));
     }
 
     @Override
     public void removeUserById(long id) {
-        Session session = Util.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
+        Session session = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            session = Util.getSessionFactory().getCurrentSession();
+            session.beginTransaction();
 
-        session.createQuery(String.format("DELETE FROM USERS WHERE id = %s", id)).executeUpdate();
+            preparedStatement = Util.getConnection().prepareStatement("DELETE FROM USERS WHERE id = ?");
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            log.warning(e.getMessage());
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    log.warning(e.getMessage());
+                }
+            }
+            if (session != null) {
+                session.close();
+            }
+            Util.closeSessionFactory();
+        }
 
-        session.getTransaction().commit();
-        Util.closeSessionFactory();
     }
 
     @Override
@@ -72,7 +94,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
         List<User> allUsers = session.createQuery("FROM USERS").getResultList();
 
-        session.getTransaction().commit();
+        session.close();
         Util.closeSessionFactory();
 
         return allUsers;
